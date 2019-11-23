@@ -5,16 +5,15 @@ const validateToken = (req, res, next) => {
 	let payload;
 
 	if (!token) {
-		next({
-			error: 'missing token or invalid scheme'
-		});
+		return next('missing token');
 	}
 
-	// JWTs use the Bearer scheme and so we can easily split by the space to get just the token.
+	token = token.split(' ')[1];
+
 	try {
 		payload = jwt.verify(token, process.env.SECRET);
 	} catch (err) {
-		next(err);
+		return next('invalid token or token scheme');
 	}
 
 	req.token = payload.token;
