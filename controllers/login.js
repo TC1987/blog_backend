@@ -17,9 +17,7 @@ router.post('/', async (req, res) => {
 				error: 'invalid password'
 			});
 		}
-
-		console.log(user);
-
+		
 		jwt.sign(user.toJSON(), process.env.SECRET, (err, token) => {
 			if (err) {
 				console.log(err);

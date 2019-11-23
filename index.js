@@ -24,8 +24,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded());
 
-app.use('/users', userRouter);
-app.use('/blogs', blogRouter);
+app.use('/api/users', userRouter);
+app.use('/api/blogs', blogRouter);
 app.use('/login', loginRouter);
 
 app.listen(process.env.PORT, () => console.log(chalk.bold.green(`listening on ${process.env.PORT}`)));

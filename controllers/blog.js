@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const Blog = require('../models/Blog');
+const User = require('../models/User');
 const { validateToken } = require('../utils/middleware');
 
 router.get('/', async (req, res) => {
@@ -14,8 +15,14 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', validateToken, async (req, res) => {
 	const newBlog = new Blog({
-		...req.body
+		...req.body,
+		author: req.user.id
 	});
+
+	const author = await User.findById(req.user.id);
+
+	author.blogs = [...author.blogs, newBlog._id];
+	author.save();
 
 	const savedBlog = await newBlog.save();
 	return res.json(savedBlog.toJSON());
