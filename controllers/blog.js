@@ -4,7 +4,7 @@ const User = require('../models/User');
 const { validateToken } = require('../utils/middleware');
 
 router.get('/', async (req, res) => {
-	const blogs = await Blog.find({});
+	const blogs = await Blog.find({}).populate('author', 'id name').exec();
 	return res.json(blogs.map(blog => blog.toJSON()));
 });
 
@@ -25,7 +25,20 @@ router.post('/', validateToken, async (req, res) => {
 	author.save();
 
 	const savedBlog = await newBlog.save();
-	return res.json(savedBlog.toJSON());
+
+	let POJO = savedBlog.toObject();
+	POJO = {
+		...POJO,
+		author: {
+			name: author.name,
+			id: author._id
+		},
+		id: POJO._id
+	};
+	delete POJO._id;
+	delete POJO.__v;
+
+	return res.json(POJO);
 });
 
 router.put('/:id', (req, res) => res.send('blog put'));
