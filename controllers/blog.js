@@ -27,6 +27,7 @@ router.post('/', validateToken, async (req, res) => {
 	const savedBlog = await newBlog.save();
 
 	let POJO = savedBlog.toObject();
+
 	POJO = {
 		...POJO,
 		author: {
@@ -35,14 +36,39 @@ router.post('/', validateToken, async (req, res) => {
 		},
 		id: POJO._id
 	};
+
 	delete POJO._id;
 	delete POJO.__v;
 
 	return res.json(POJO);
 });
 
-router.put('/:id', (req, res) => res.send('blog put'));
+router.put('/:id', async (req, res) => {
+	const content = req.body;
+	const author = {
+		...content.author
+	};
 
-router.delete('/:id', (req, res) => res.send('blog delete'));
+	content.author = content.author.id;
+	const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, content, { new: true });
+	let POJO = updatedBlog.toObject();
+
+	POJO = {
+		...POJO,
+		author,
+		id: POJO._id
+	};
+
+	delete POJO._id;
+	delete POJO.__v;
+
+	return res.json(POJO);
+});
+
+router.delete('/:id', async (req, res) => {
+	const deletedBlog = await Blog.findByIdAndDelete(req.params.id);
+	console.log(deletedBlog);
+	return res.json(deletedBlog.toJSON());
+});
 
 module.exports = router;
