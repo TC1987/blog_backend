@@ -7,12 +7,23 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-	const user = await User.findById(req.params.id);
+	let user;
+
+	try {
+		user = await User.findById(req.params.id).populate('blogs').exec();
+	} catch (err) {
+		console.log(err.message);
+		return res.status(400).json({
+			error: 'invalid mongoid'
+		});
+	}
+
 	if (!user) {
 		return res.status(404).json({
 			error: 'user does not exist'
 		});
 	}
+
 	return res.json(user.toJSON());
 });
 

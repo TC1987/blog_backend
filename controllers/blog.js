@@ -65,9 +65,25 @@ router.put('/:id', async (req, res) => {
 	return res.json(POJO);
 });
 
-router.delete('/:id', async (req, res) => {
-	const deletedBlog = await Blog.findByIdAndDelete(req.params.id);
-	console.log(deletedBlog);
+router.delete('/:id', validateToken, async (req, res) => {
+	let deletedBlog;
+	let blogAuthor;
+
+	try {
+		deletedBlog = await Blog.findByIdAndDelete(req.params.id);
+		blogAuthor = await User.findById(req.user.id);
+
+		if (!deletedBlog.author.equals(blogAuthor._id)) {
+			return res.status(401).end();
+		}
+
+		blogAuthor.blogs = blogAuthor.blogs.filter(blogId => !blogId.equals(deletedBlog._id));
+		await blogAuthor.save();
+	} catch (err) {
+		return res.status(500).json({
+			error: 'error deleting blog'
+		});
+	}
 	return res.json(deletedBlog.toJSON());
 });
 
