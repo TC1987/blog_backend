@@ -16,9 +16,30 @@ const userSchema = new Schema({
 		type: String,
 		required: true
 	},
+
+	//
+	// IS IT BETTER TO CREATE AN EMPTY ARRAY BY DEFAULT?
+	//
+
 	blogs: [{
 		type: Schema.Types.ObjectId,
 		ref: 'Blog'
+	}],
+	likedBlogs: [{
+		type: Schema.Types.ObjectId,
+		ref: 'Blog'
+	}],
+	savedBlogs: [{
+		type: Schema.Types.ObjectId,
+		ref: 'Blog'
+	}],
+	profileViews: [{
+		type: Schema.Types.ObjectId,
+		ref: 'User'
+	}],
+	followedUsers: [{
+		type: Schema.Types.ObjectId,
+		ref: 'User'
 	}]
 });
 

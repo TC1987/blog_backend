@@ -2,8 +2,14 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const blogSchema = new Schema({
-	title: String,
-	content: String,
+	title: {
+		type: String,
+		required: true
+	},
+	content: {
+		type: String,
+		required: true
+	},
 	author: {
 		type: Schema.Types.ObjectId,
 		ref: 'User'
@@ -12,10 +18,19 @@ const blogSchema = new Schema({
 		type: Number,
 		default: 0
 	},
-	comments: {
-		type: [Schema.Types.ObjectId],
+	comments: [{
+		type: Schema.Types.ObjectId,
 		ref: 'Comment'
-	}
+	}],
+	views: {
+		type: Number,
+		default: 0
+	},
+	tags: [String],
+	readTime: String,
+	pictureUrl: String
+}, {
+	timestamps: true
 });
 
 blogSchema.set('toJSON', {

@@ -2,23 +2,35 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const commentSchema = new Schema({
-	postId: {
+	blogId: {
 		type: Schema.Types.ObjectId,
 		ref: 'Blog'
 	},
 	comment: String,
-	comments: {
-		type: [Schema.Types.ObjectId],
+	name: {
+		type: Schema.Types.ObjectId,
+		ref: 'User'
+	},
+	comments: [{
+		type: Schema.Types.ObjectId,
 		ref: 'Comment'
-	},
-	author: {
-		type: String,
-		default: 'Anonymous'
-	},
+	}],
 	date: {
 		type: Date,
 		default: Date.now()
 	},
+	likes: {
+		type: Number,
+		default: 0
+	}
+});
+
+commentSchema.set('toJSON', {
+	transform: (doc, returned) => {
+		returned.id = doc.id.toString();
+		delete returned._id;
+		delete returned.__v;
+	}
 });
 
 module.exports = mongoose.model('Comment', commentSchema);

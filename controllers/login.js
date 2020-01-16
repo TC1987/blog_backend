@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
 			});
 		}
 		
-		jwt.sign(user.toJSON(), process.env.SECRET, (err, token) => {
+		jwt.sign(user.toJSON(), process.env.SECRET, { expiresIn: '1h' }, (err, token) => {
 			if (err) {
 				console.log(err);
 				return res.status(500).json({
