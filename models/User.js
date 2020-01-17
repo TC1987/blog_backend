@@ -16,11 +16,6 @@ const userSchema = new Schema({
 		type: String,
 		required: true
 	},
-
-	//
-	// IS IT BETTER TO CREATE AN EMPTY ARRAY BY DEFAULT?
-	//
-
 	blogs: [{
 		type: Schema.Types.ObjectId,
 		ref: 'Blog'
@@ -43,7 +38,7 @@ const userSchema = new Schema({
 	}]
 });
 
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function (next) {
 	const user = this;
 
 	if (!user.isModified('password')) {
@@ -66,7 +61,7 @@ userSchema.pre('save', function(next) {
 	});
 });
 
-userSchema.methods.comparePassword = function(password, callback) {
+userSchema.methods.comparePassword = function (password, callback) {
 	bcrypt.compare(password, this.password, (err, isMatch) => {
 		if (err) {
 			return callback(err);
