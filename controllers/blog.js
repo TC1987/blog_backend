@@ -3,8 +3,7 @@ const Blog = require('../models/Blog');
 const User = require('../models/User');
 const Comment = require('../models/Comment');
 const { validateToken } = require('../utils/middleware');
-const { upload } = require('../utils/multer');
-const validator = require('../utils/helpers/validate');
+const upload = require('../utils/multer');
 
 router.get('/', async (req, res) => {
 	const blogs = await Blog.find({}).populate('author', 'id name');
@@ -24,7 +23,9 @@ router.get('/:id/comments', async (req, res) => {
 // validate everything but file. if error, don't bother with file and return an error
 // if everything but file is good, validate file using multer
 // if error with file, don't save new object to database and return error
-router.post('/', validateToken, async (req, res) => {
+router.post('/', validateToken, upload.single('image'), async (req, res) => {
+	console.log(req.file);
+
 	const extractTags = tags => {
 		return tags.split(' ').map(tag => {
 			if (tag[tag.length - 1] === ',') {
