@@ -16,7 +16,7 @@ router.get('/:id', async (req, res) => {
 });
 
 router.get('/:id/comments', async (req, res) => {
-	const comments = await Comment.find({ blogId: req.params.id });
+	const comments = await Comment.find({ blogId: req.params.id }).populate('author');
 	return res.json(comments.map(comment => comment.toJSON()));
 });
 
@@ -24,8 +24,6 @@ router.get('/:id/comments', async (req, res) => {
 // if everything but file is good, validate file using multer
 // if error with file, don't save new object to database and return error
 router.post('/', validateToken, upload.single('image'), async (req, res) => {
-	console.log(req.file);
-
 	const extractTags = tags => {
 		return tags.split(' ').map(tag => {
 			if (tag[tag.length - 1] === ',') {
@@ -56,6 +54,7 @@ router.post('/', validateToken, upload.single('image'), async (req, res) => {
 		...req.body,
 		tags: req.body.tags && extractTags(req.body.tags),
 		readTime: getReadTime(req.body.content),
+		pictureUrl: req.file ? `/uploads/${req.file.filename}` : null,
 		author: req.user.id
 	});
 
@@ -85,7 +84,7 @@ router.post('/', validateToken, upload.single('image'), async (req, res) => {
 
 router.post('/:id/comments', async (req, res, next) => {
 	try {
-		const blog = await Blog.findById(req.params.id);
+		const blog = await (await Blog.findById(req.params.id));
 
 		if (!blog) {
 			return next('invalid blog id');
@@ -93,10 +92,8 @@ router.post('/:id/comments', async (req, res, next) => {
 
 		const comment = new Comment({
 			...req.body,
-			blogId: blog.id
+			blogId: blog.id,
 		});
-
-		console.log(comment);
 
 		blog.comments = [...blog.comments, comment.id];
 
@@ -104,6 +101,22 @@ router.post('/:id/comments', async (req, res, next) => {
 		await comment.save();
 
 		return res.json(comment.toJSON());
+
+		// let POJO = comment.toObject();
+
+		// POJO = {
+		// 	...POJO,
+		// 	author: {
+		// 		id: req.body.author,
+		// 		name: req.body.authorName
+		// 	},
+		// 	id: comment._id
+		// };
+
+		// delete POJO._id;
+		// delete POJO.__v;
+
+		// return res.json(POJO);
 	} catch (err) {
 		console.log(err.message);
 		return res.status(400).json({

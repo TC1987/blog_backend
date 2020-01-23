@@ -6,6 +6,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const chalk = require('chalk');
 const app = express();
+const path = require('path');
 
 const userRouter = require('./controllers/user');
 const blogRouter = require('./controllers/blog');
@@ -23,6 +24,7 @@ mongoose
 
 app.use(morgan('tiny'));
 app.use(cors());
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({
 	extended: true
