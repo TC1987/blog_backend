@@ -5,6 +5,8 @@ const Comment = require('../models/Comment');
 const { validateToken } = require('../utils/middleware');
 const upload = require('../utils/multer');
 
+const { getReadTime } = require('../utils/helpers/blog');
+
 router.get('/', async (req, res) => {
 	const blogs = await Blog.find({}).populate('author', 'id name');
 	return res.json(blogs.map(blog => blog.toJSON()));
@@ -23,63 +25,42 @@ router.get('/:id/comments', async (req, res) => {
 // validate everything but file. if error, don't bother with file and return an error
 // if everything but file is good, validate file using multer
 // if error with file, don't save new object to database and return error
-router.post('/', validateToken, upload.single('image'), async (req, res) => {
-	const extractTags = tags => {
-		return tags.split(' ').map(tag => {
-			if (tag[tag.length - 1] === ',') {
-				return tag.slice(0, tag.length - 1);
-			}
-			return tag;
+
+router.post('/', validateToken, upload.single('image'), async (req, res, next) => {
+	try {
+		const newBlog = new Blog({
+			...req.body,
+			readTime: getReadTime(req.body.content),
+			pictureUrl: req.file ? `/uploads/${req.file.filename}` : null,
+			author: req.user.id
 		});
-	};
 
-	const getReadTime = content => {
-		const numberOfWords = content.split(' ').length;
+		const author = await User.findById(req.user.id);
 
-		switch (numberOfWords) {
-			case numberOfWords > 100:
-				return '10+';
-			case numberOfWords > 50:
-				return '5';
-			case numberOfWords > 20:
-				return '3';
-			case numberOfWords > 10:
-				return '1';
-			default:
-				return '< 1';
-		}
-	};
-
-	const newBlog = new Blog({
-		...req.body,
-		tags: req.body.tags && extractTags(req.body.tags),
-		readTime: getReadTime(req.body.content),
-		pictureUrl: req.file ? `/uploads/${req.file.filename}` : null,
-		author: req.user.id
-	});
-
-	const author = await User.findById(req.user.id);
-
-	author.blogs = [...author.blogs, newBlog._id];
-	author.save();
-
-	const savedBlog = await newBlog.save();
-
-	let POJO = savedBlog.toObject();
-
-	POJO = {
-		...POJO,
-		author: {
-			name: author.name,
-			id: author._id
-		},
-		id: POJO._id
-	};
-
-	delete POJO._id;
-	delete POJO.__v;
-
-	return res.json(POJO);
+		author.blogs = [...author.blogs, newBlog._id];
+		author.save();
+	
+		const savedBlog = await newBlog.save();
+	
+		let POJO = savedBlog.toObject();
+	
+		POJO = {
+			...POJO,
+			author: {
+				name: author.name,
+				id: author._id
+			},
+			id: POJO._id
+		};
+	
+		delete POJO._id;
+		delete POJO.__v;
+	
+		return res.json(POJO);
+	} catch (err) {
+		console.log(err);
+		next(err);
+	}
 });
 
 router.post('/:id/comments', async (req, res, next) => {
@@ -126,26 +107,30 @@ router.post('/:id/comments', async (req, res, next) => {
 
 });
 
-router.put('/:id', async (req, res) => {
-	const content = req.body;
-	const author = {
-		...content.author
-	};
+router.put('/:id', validateToken, upload.single('image'), async (req, res, next) => {
+	try {
+		const content = {
+			...req.body,
+			readTime: getReadTime(req.body.content),
+			pictureUrl: req.file ? `/uploads/${req.file.filename}` : null,
+			author: req.user.id
+		};
 
-	content.author = content.author.id;
-	const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, content, { new: true });
-	let POJO = updatedBlog.toObject();
-
-	POJO = {
-		...POJO,
-		author,
-		id: POJO._id
-	};
-
-	delete POJO._id;
-	delete POJO.__v;
-
-	return res.json(POJO);
+		const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, content, { new: true });
+		let POJO = updatedBlog.toObject();
+	
+		POJO = {
+			...POJO,
+			id: POJO._id
+		};
+	
+		delete POJO._id;
+		delete POJO.__v;
+	
+		return res.json(POJO);
+	} catch (err) {
+		next(err);
+	}
 });
 
 router.delete('/:id', validateToken, async (req, res) => {

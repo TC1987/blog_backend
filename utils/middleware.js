@@ -22,23 +22,25 @@ const validateToken = (req, res, next) => {
 	next();
 };
 
-const unknownEndpoint = (request, response) => {
-	return response.status(404).send({ error: 'unknown endpoint' });
+const unknownEndpoint = (req, res) => {
+	return res.status(404).send({ error: 'unknown endpoint' });
 };
 
-const errorHandler = (error, request, response, next) => {
-	console.error(error.message);
-
+const errorHandler = (error, req, res, next) => {
 	if (error.name === 'CastError' && error.kind === 'ObjectId') {
-		return response.status(400).send({ error: 'malformatted id' });
+		return res.status(400).send({ error: 'malformatted id' });
 	} 
 
-	if (error.name === 'ValidationError') {
-		return response.status(400).send({ error: error.message });
+	if (error.name === 'ValidationError' || error.name === 'FileError') {
+		return res.status(400).send({ error: error.message });
+	}
+
+	if (error.name === 'MulterError') {
+		return res.status(401).json({ error: `Error: ${ error.message.split(' ').map(word => word[0].toUpperCase() + word.slice(1)).join(' ') }` });
 	}
 
 	if (error.name === 'JsonWebTokenError') {
-		return response.status(401).json({
+		return res.status(401).json({
 			error: error.message
 		});
 	}

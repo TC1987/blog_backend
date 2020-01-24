@@ -26,7 +26,6 @@ const blogSchema = new Schema({
 		type: Number,
 		default: 0
 	},
-	tags: [String],
 	readTime: String,
 	pictureUrl: String
 }, {

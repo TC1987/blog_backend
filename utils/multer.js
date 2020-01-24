@@ -19,13 +19,16 @@ const checkFileType = (file, cb) => {
 		return cb(null, true);
 	}
 
-	return cb('Error: Images Only');
+	const error = new Error('Error: Images Only');
+	error.name = 'FileError';
+
+	return cb(error);
 };
 
 const upload = multer({
 	storage,
-	limits: { fileSize: 1000000 },
-	fileFilter: function (req, file, cb) {
+	limits: { fileSize: 2000000 },
+	fileFilter: (req, file, cb) => {
 		checkFileType(file, cb);
 	}
 });
