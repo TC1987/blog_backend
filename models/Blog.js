@@ -4,11 +4,13 @@ const Schema = mongoose.Schema;
 const blogSchema = new Schema({
 	title: {
 		type: String,
-		required: true
+		required: true,
+		minlength: 3
 	},
 	content: {
 		type: String,
-		required: true
+		required: true,
+		minlength: 3
 	},
 	author: {
 		type: Schema.Types.ObjectId,

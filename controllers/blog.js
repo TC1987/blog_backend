@@ -1,4 +1,6 @@
 const router = require('express').Router();
+const validator = require('validator');
+
 const Blog = require('../models/Blog');
 const User = require('../models/User');
 const Comment = require('../models/Comment');

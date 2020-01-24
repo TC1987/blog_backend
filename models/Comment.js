@@ -6,7 +6,11 @@ const commentSchema = new Schema({
 		type: Schema.Types.ObjectId,
 		ref: 'Blog'
 	},
-	comment: String,
+	comment: {
+		type: String,
+		required: true,
+		minlength: 3
+	},
 	author: {
 		type: Schema.Types.ObjectId,
 		ref: 'User'
