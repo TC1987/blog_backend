@@ -17,7 +17,8 @@ const { errorHandler, unknownEndpoint } = require('./utils/middleware');
 mongoose
 	.connect(process.env.MONGODB_URI, {
 		useUnifiedTopology: true,
-		useNewUrlParser: true
+		useNewUrlParser: true,
+		useFindAndModify: false
 	})
 	.then(() => console.log(chalk.green('successfully connected to remote mongodb server')))
 	.catch(err => console.log(chalk.red(err.message)));

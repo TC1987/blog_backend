@@ -1,5 +1,6 @@
 const router = require('express').Router();
-const validator = require('validator');
+const sharp = require('sharp');
+const path = require('path');
 
 const Blog = require('../models/Blog');
 const User = require('../models/User');
@@ -43,7 +44,7 @@ router.post('/', validateToken, upload.single('image'), async (req, res, next) =
 		author.save();
 	
 		const savedBlog = await newBlog.save();
-	
+
 		let POJO = savedBlog.toObject();
 	
 		POJO = {
@@ -57,7 +58,15 @@ router.post('/', validateToken, upload.single('image'), async (req, res, next) =
 	
 		delete POJO._id;
 		delete POJO.__v;
-	
+
+		// const fileNameParts = req.file.filename.split('.');
+		// const newFileName = fileNameParts[0] + '-small.' + fileNameParts[1];
+
+		// sharp(path.join(__dirname, `../public/uploads/${ req.file.filename }`))
+		// 	.resize(480)
+		// 	.toFile(path.join(__dirname, `../public/uploads/${ newFileName }`))
+		// 	.catch(err => console.log(err.message));
+
 		return res.json(POJO);
 	} catch (err) {
 		console.log(err);
@@ -84,22 +93,6 @@ router.post('/:id/comments', async (req, res, next) => {
 		await comment.save();
 
 		return res.json(comment.toJSON());
-
-		// let POJO = comment.toObject();
-
-		// POJO = {
-		// 	...POJO,
-		// 	author: {
-		// 		id: req.body.author,
-		// 		name: req.body.authorName
-		// 	},
-		// 	id: comment._id
-		// };
-
-		// delete POJO._id;
-		// delete POJO.__v;
-
-		// return res.json(POJO);
 	} catch (err) {
 		console.log(err.message);
 		return res.status(400).json({
@@ -110,11 +103,13 @@ router.post('/:id/comments', async (req, res, next) => {
 });
 
 router.put('/:id', validateToken, upload.single('image'), async (req, res, next) => {
+	const blog = await Blog.findById(req.params.id);
+
 	try {
 		const content = {
 			...req.body,
 			readTime: getReadTime(req.body.content),
-			pictureUrl: req.file ? `/uploads/${req.file.filename}` : null,
+			pictureUrl: req.file ? `/uploads/${req.file.filename}` : blog.pictureUrl,
 			author: req.user.id
 		};
 
