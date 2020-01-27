@@ -7,14 +7,14 @@ router.post('/', async (req, res) => {
 
 	if (!user) {
 		return res.status(400).json({
-			error: 'invalid email'
+			error: 'Invalid Email'
 		});
 	}
 
 	user.comparePassword(req.body.password, (err, isMatch) => {
 		if (err || !isMatch) {
 			return res.status(400).json({
-				error: 'invalid password'
+				error: 'Invalid Password'
 			});
 		}
 		
@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
 			if (err) {
 				console.log(err);
 				return res.status(500).json({
-					error: 'error generating token'
+					error: 'Error Generating Token'
 				});
 			}
 

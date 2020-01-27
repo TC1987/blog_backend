@@ -79,7 +79,7 @@ router.post('/:id/comments', async (req, res, next) => {
 		const blog = await (await Blog.findById(req.params.id));
 
 		if (!blog) {
-			return next('invalid blog id');
+			return next('Invalid Blog Id');
 		}
 
 		const comment = new Comment({
@@ -96,7 +96,7 @@ router.post('/:id/comments', async (req, res, next) => {
 	} catch (err) {
 		console.log(err.message);
 		return res.status(400).json({
-			error: 'error saving comment'
+			error: 'Error Saving Comment'
 		});
 	}
 
@@ -146,7 +146,7 @@ router.delete('/:id', validateToken, async (req, res) => {
 		await blogAuthor.save();
 	} catch (err) {
 		return res.status(500).json({
-			error: 'error deleting blog'
+			error: 'Error Deleting Blog'
 		});
 	}
 	return res.json(deletedBlog.toJSON());

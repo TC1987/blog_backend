@@ -17,13 +17,13 @@ router.get('/:id', async (req, res) => {
 	} catch (err) {
 		console.log(err.message);
 		return res.status(400).json({
-			error: 'invalid mongoid'
+			error: 'Invalid Mongo Id'
 		});
 	}
 
 	if (!user) {
 		return res.status(404).json({
-			error: 'user does not exist'
+			error: 'User Does Not Exist'
 		});
 	}
 
@@ -83,6 +83,6 @@ router.patch('/:id', validateToken, async (req, res) => {
 	return res.json(updatedUser.toJSON());
 });
 
-router.delete('/:id', (req, res) => res.send('users delete'));
+router.delete('/:id', (req, res) => res.send('User Deleted'));
 
 module.exports = router;

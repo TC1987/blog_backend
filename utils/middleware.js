@@ -6,7 +6,7 @@ const validateToken = (req, res, next) => {
 	let user;
 
 	if (!token) {
-		return next('missing token');
+		return next('Missing token');
 	}
 
 	token = token.split(' ')[1];
@@ -23,12 +23,12 @@ const validateToken = (req, res, next) => {
 };
 
 const unknownEndpoint = (req, res) => {
-	return res.status(404).send({ error: 'unknown endpoint' });
+	return res.status(404).send({ error: 'Unknown endpoint' });
 };
 
 const errorHandler = (error, req, res, next) => {
 	if (error.name === 'CastError' && error.kind === 'ObjectId') {
-		return res.status(400).send({ error: 'malformatted id' });
+		return res.status(400).send({ error: 'Malformatted ID' });
 	} 
 
 	if (error.name === 'ValidationError' || error.name === 'FileError') {
